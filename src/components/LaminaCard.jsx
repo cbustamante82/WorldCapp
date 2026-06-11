@@ -93,7 +93,7 @@ export default function LaminaCard({ lamina, estado, isFan }) {
           {lamina.name}
         </span>
 
-        <span className={['sm:hidden relative z-10 w-full text-center text-[8px] font-semibold uppercase tracking-wide',
+        <span className={['sm:hidden relative z-10 w-full text-center text-[6px] font-semibold uppercase tracking-tight',
           pegada ? 'text-white/80' : 'text-ink-soft/70'].join(' ')}>
           {tipo?.label}
         </span>
