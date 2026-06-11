@@ -13,6 +13,7 @@ const links = [
   { to: '/progreso',    label: 'Progreso'    },
   { to: '/exploracion', label: 'Explorar'    },
   { to: '/cartilla',    label: 'Cartilla'    },
+  { to: '/ayuda',       label: 'Ayuda'       },
 ]
 
 function NavLinks({ onClose }) {
