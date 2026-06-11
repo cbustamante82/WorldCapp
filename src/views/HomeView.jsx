@@ -20,7 +20,7 @@ export default function HomeView() {
   const pct       = Math.round((pegadas / ALBUM_TOTALS.stickers) * 100)
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 flex flex-col items-center gap-8">
+    <div className="mx-auto max-w-2xl px-4 py-6 sm:py-8 flex flex-col items-center gap-6 sm:gap-8">
 
       {/* Portada del álbum — clickeable */}
       <button
@@ -79,8 +79,8 @@ export default function HomeView() {
 function StatBox({ label, value, color }) {
   return (
     <div className="rounded-lg border border-paper-deep bg-paper-deep/40 py-3">
-      <p className={`brand-title text-3xl tabular ${color}`}>{value}</p>
-      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-soft">{label}</p>
+      <p className={`brand-title text-2xl sm:text-3xl tabular ${color}`}>{value}</p>
+      <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-ink-soft">{label}</p>
     </div>
   )
 }

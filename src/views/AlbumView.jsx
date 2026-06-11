@@ -142,11 +142,11 @@ export default function AlbumView() {
       : ''
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
 
       {/* ── Barra de control ──────────────────────────────────────────────── */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="w-64">
+        <div className="w-full sm:w-64">
           <FlagSelect
             options={JUMP_OPTIONS}
             value={displayIdx}
@@ -155,7 +155,7 @@ export default function AlbumView() {
           />
         </div>
 
-        <span className="text-xs tabular text-ink-soft ml-1">
+        <span className="text-xs tabular text-ink-soft">
           {displayIdx + 1} / {ALL_PAGES.length}
         </span>
 
@@ -164,13 +164,13 @@ export default function AlbumView() {
             disabled={phase !== 'idle' || displayIdx === 0}
             onClick={() => flipTo(displayIdx - 1)}
           >
-            ‹ Anterior
+            ‹
           </FlipBtn>
           <FlipBtn
             disabled={phase !== 'idle' || displayIdx === ALL_PAGES.length - 1}
             onClick={() => flipTo(displayIdx + 1)}
           >
-            Siguiente ›
+            ›
           </FlipBtn>
         </div>
       </div>
@@ -206,9 +206,9 @@ export default function AlbumView() {
 
       {/* ── Footer: progreso + acciones ─────────────────────────────────────── */}
       <div className="mt-4 flex items-center justify-between rounded-xl border border-paper-deep bg-paper px-4 py-3 text-sm">
-        <span className="text-ink-soft">
+        <span className="text-ink-soft text-sm">
           Progreso global
-          <span className="ml-3 hidden text-[11px] text-ink-soft/60 sm:inline">← → navegar · swipe en móvil</span>
+          <span className="ml-3 hidden text-[11px] text-ink-soft/60 lg:inline">← → navegar · swipe en móvil</span>
         </span>
         <div className="flex items-center gap-4">
           {/* Botón: limpiar repetidas de la página (solo visible si hay alguna) */}
@@ -275,7 +275,7 @@ export default function AlbumView() {
 function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan }) {
   const { primary, secondary } = seleccion.colors
   return (
-    <div className="relative" style={{ minHeight: '520px' }}>
+    <div className="relative" style={{ minHeight: 'clamp(320px, 60vw, 520px)' }}>
 
       {/* Capa de fondo al 50% de opacidad — solo el gradiente es transparente,
           el contenido encima permanece a opacidad completa */}
@@ -296,36 +296,40 @@ function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan }) {
       />
 
       {/* Contenido a opacidad completa */}
-      <div className="relative p-6">
+      <div className="relative p-3 sm:p-6">
         {/* Cabecera */}
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
+        <div className="mb-3 sm:mb-5 flex items-center justify-between gap-2 sm:gap-3">
+          <div className="min-w-0">
             <p
-              className="text-[11px] font-bold uppercase tracking-[0.3em] opacity-80"
+              className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-80"
               style={{ color: secondary === '#ffffff' ? 'rgba(255,255,255,0.7)' : secondary }}
             >
               WE ARE
             </p>
             <h2
-              className={`brand-title flex items-center gap-3 text-5xl leading-none drop-shadow-lg ${isFan ? 'fan-name-glow' : ''}`}
+              className={`brand-title flex items-center gap-2 text-2xl sm:text-4xl xl:text-5xl leading-none drop-shadow-lg ${isFan ? 'fan-name-glow' : ''}`}
               style={{ color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.5)' }}
             >
-              <FlagImg iso2={seleccion.iso2} name={seleccion.name} size={48} className="rounded shadow-md" />
-              {seleccion.name.toUpperCase()}
+              <FlagImg iso2={seleccion.iso2} name={seleccion.name} size={32} className="rounded shadow-md flex-shrink-0 sm:w-10 sm:h-10" />
+              <span className="truncate">{seleccion.name.toUpperCase()}</span>
             </h2>
-            <p className="mt-1 text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            <p className="mt-0.5 text-xs sm:text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.75)' }}>
               {seleccion.confederation} · Grupo {seleccion.group}
             </p>
           </div>
 
-          {/* FanBadge centrado entre nombre y contador */}
-          {isFan && <FanBadge iso2={seleccion.iso2} colors={seleccion.colors} name={seleccion.name} />}
+          {/* FanBadge — oculto en pantallas muy pequeñas */}
+          {isFan && (
+            <div className="hidden sm:flex flex-1 min-w-0">
+              <FanBadge iso2={seleccion.iso2} colors={seleccion.colors} name={seleccion.name} />
+            </div>
+          )}
 
           <div
-            className="rounded-xl px-4 py-3 text-center shadow-md flex-shrink-0"
+            className="rounded-xl px-2.5 py-2 sm:px-4 sm:py-3 text-center shadow-md flex-shrink-0"
             style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
           >
-            <p className="brand-title text-3xl tabular text-white">{pegadas}/{ordered.length}</p>
+            <p className="brand-title text-xl sm:text-3xl tabular text-white">{pegadas}/{ordered.length}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-white/70">pegadas</p>
           </div>
         </div>
@@ -364,27 +368,27 @@ function SpecialPage({ page, ordered, pegadas, estadoMap, variant }) {
     : { background: 'linear-gradient(135deg, #1a0000 0%, #8b0000 50%, #cc0000 100%)' }
 
   return (
-    <div style={bgStyle} className="p-6">
-      <header className="mb-5 flex items-center justify-between gap-4">
+    <div style={bgStyle} className="p-3 sm:p-6">
+      <header className="mb-3 sm:mb-5 flex items-center justify-between gap-4">
         <div>
           <p
-            className="text-[11px] font-bold uppercase tracking-[0.3em]"
+            className="text-[10px] font-bold uppercase tracking-[0.3em]"
             style={{ color: `${accentColor}99` }}
           >
             {isFWC ? 'ESPECIALES MUNDIALISTAS' : 'COCA-COLA STARS'}
           </p>
           <h2
-            className="brand-title text-4xl leading-none drop-shadow-lg mt-1"
+            className="brand-title text-2xl sm:text-4xl leading-none drop-shadow-lg mt-1"
             style={{ color: accentColor, textShadow: '2px 2px 8px rgba(0,0,0,0.6)' }}
           >
             {isFWC ? '⭐ FWC' : '🥤 Coca-Cola'}
           </h2>
         </div>
         <div
-          className="rounded-xl px-4 py-3 text-center shadow-md"
+          className="rounded-xl px-2.5 py-2 sm:px-4 sm:py-3 text-center shadow-md flex-shrink-0"
           style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
         >
-          <p className="brand-title text-3xl tabular" style={{ color: accentColor }}>
+          <p className="brand-title text-xl sm:text-3xl tabular" style={{ color: accentColor }}>
             {pegadas}/{ordered.length}
           </p>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/70">pegadas</p>

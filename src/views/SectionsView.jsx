@@ -12,7 +12,7 @@ export default function SectionsView() {
   const { map: estadoMap } = useCollection()
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 space-y-10">
+    <div className="mx-auto max-w-6xl px-4 py-6 space-y-10">
       <div>
         <h1 className="brand-title text-4xl text-ink">Secciones especiales</h1>
         <p className="text-sm text-ink-soft">Láminas FWC mundialistas y estrellas Coca-Cola</p>

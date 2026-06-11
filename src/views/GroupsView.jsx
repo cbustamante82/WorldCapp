@@ -32,7 +32,7 @@ export default function GroupsView() {
   const displayedGroups = activeGroup ? [activeGroup] : GROUPS
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-5">
         <h1 className="brand-title text-4xl text-ink">Mundial 2026</h1>
         <p className="text-sm text-ink-soft">12 grupos · 48 equipos · 104 partidos · 11 jun – 19 jul 2026</p>

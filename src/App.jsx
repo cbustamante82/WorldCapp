@@ -12,6 +12,7 @@ import SectionsView     from './views/SectionsView'
 import GroupsView       from './views/GroupsView'
 import ProgressView     from './views/ProgressView'
 import ExploreView      from './views/ExploreView'
+import TableView        from './views/TableView'
 import LoginView        from './views/LoginView'
 import RegisterView     from './views/RegisterView'
 import RecoverView      from './views/RecoverView'
@@ -57,9 +58,10 @@ function Inner() {
           <Route path="/grupos"      element={<GroupsView />} />
           <Route path="/progreso"    element={<ProgressView />} />
           <Route path="/exploracion" element={<ExploreView />} />
+          <Route path="/cartilla"    element={<TableView />} />
         </Routes>
       </main>
-      <footer className="mx-auto max-w-5xl px-4 py-6 text-center text-[11px] text-ink-soft">
+      <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-[11px] text-ink-soft">
         WorldCapp · FIFA World Cup 2026™
       </footer>
     </div>

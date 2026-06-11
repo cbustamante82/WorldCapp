@@ -84,18 +84,13 @@ export default function LaminaCard({ lamina, estado, isFan }) {
 
         <span className="relative z-10 flex flex-1 items-center justify-center">
           {pegada
-            ? <span className="brand-title text-2xl leading-none drop-shadow">✓</span>
-            : <span className="brand-title text-3xl leading-none text-slot-line">{lamina.number}</span>
+            ? <span className="brand-title text-xl leading-none drop-shadow">✓</span>
+            : <span className="brand-title text-base md:text-2xl lg:text-3xl leading-none text-slot-line opacity-60">{lamina.number}</span>
           }
         </span>
 
-        <span className="relative z-10 line-clamp-2 w-full text-[11px] font-semibold leading-tight">
+        <span className="relative z-10 line-clamp-2 w-full text-[10px] font-semibold leading-tight">
           {lamina.name}
-        </span>
-
-        <span className={['relative z-10 mt-0.5 text-[9px] font-medium',
-          pegada ? 'text-white/70' : 'text-ink-soft/60'].join(' ')}>
-          posición {lamina.positionInSheet}
         </span>
 
         {repetidas > 0 && (

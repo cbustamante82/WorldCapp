@@ -95,12 +95,12 @@ export default function ProgressView() {
   ]
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="brand-title text-4xl text-ink">Progreso</h1>
       <p className="mb-6 text-sm text-ink-soft">Avance del álbum completo — {resumen.total} láminas.</p>
 
       {/* Métricas */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Pegadas" value={resumen.pegadas} accent={PITCH} sub={`${resumen.pct}% del álbum`} />
         <StatCard label="Faltantes" value={resumen.faltantes} accent="var(--color-accent-red)" />
         <StatCard label="Repetidas" value={resumen.repetidas} accent={GOLD} sub="total acumulado" />
@@ -112,7 +112,7 @@ export default function ProgressView() {
         {/* Donut de avance */}
         <div className="rounded-lg border border-paper-deep bg-paper p-4">
           <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">Avance</h2>
-          <div className="relative h-64">
+          <div className="relative h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -143,7 +143,7 @@ export default function ProgressView() {
           <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
             Por selección
           </h2>
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={porSeleccion} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
@@ -162,11 +162,11 @@ export default function ProgressView() {
           <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-ink-soft">
             Por sección
           </h2>
-          <div className="h-56">
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={porSeccion} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }}>
-                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
-                <YAxis type="category" dataKey="label" width={160} tick={{ fontSize: 12 }} />
+              <BarChart data={porSeccion} layout="vertical" margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="label" width={90} tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="pegadas" name="Pegadas" stackId="a" fill={PITCH} radius={[0, 3, 3, 0]} />
@@ -236,22 +236,22 @@ export default function ProgressView() {
           <table className="w-full text-left text-sm">
             <thead className="sticky top-0 bg-paper-deep text-[11px] uppercase tracking-wide text-ink-soft">
               <tr>
-                <th className="px-3 py-2">#</th>
-                <th className="px-3 py-2">Nombre</th>
-                <th className="px-3 py-2">Selección</th>
-                <th className="px-3 py-2">Tipo</th>
-                <th className="px-3 py-2">Estado</th>
-                <th className="px-3 py-2 text-right">Rep.</th>
+                <th className="px-2 py-2 sm:px-3">#</th>
+                <th className="px-2 py-2 sm:px-3">Nombre</th>
+                <th className="hidden sm:table-cell px-3 py-2">Selección</th>
+                <th className="hidden md:table-cell px-3 py-2">Tipo</th>
+                <th className="px-2 py-2 sm:px-3">Estado</th>
+                <th className="px-2 py-2 sm:px-3 text-right">Rep.</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((row) => (
                 <tr key={row.number} className="border-t border-paper-deep/60">
-                  <td className="px-3 py-1.5 tabular text-ink-soft">{row.number}</td>
-                  <td className="px-3 py-1.5 font-medium">{row.name}</td>
-                  <td className="px-3 py-1.5">{row.seleccion}</td>
-                  <td className="px-3 py-1.5">{row.tipo}</td>
-                  <td className="px-3 py-1.5">
+                  <td className="px-2 py-1.5 sm:px-3 tabular text-ink-soft text-xs">{row.number}</td>
+                  <td className="px-2 py-1.5 sm:px-3 font-medium text-sm">{row.name}</td>
+                  <td className="hidden sm:table-cell px-3 py-1.5 text-sm">{row.seleccion}</td>
+                  <td className="hidden md:table-cell px-3 py-1.5 text-sm">{row.tipo}</td>
+                  <td className="px-2 py-1.5 sm:px-3">
                     <span
                       className={[
                         'rounded-full px-2 py-0.5 text-[11px] font-semibold',
@@ -263,7 +263,7 @@ export default function ProgressView() {
                       {row.estado}
                     </span>
                   </td>
-                  <td className="px-3 py-1.5 text-right tabular">{row.repetidas}</td>
+                  <td className="px-2 py-1.5 sm:px-3 text-right tabular text-sm">{row.repetidas}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (

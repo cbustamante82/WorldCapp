@@ -56,7 +56,7 @@ export default function ExploreView() {
   const maxPeak = ranking.length ? ranking[0].peak : 100
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="brand-title text-4xl text-ink">Exploración</h1>
       <p className="mb-6 text-sm text-ink-soft">
         Filtra el álbum y descubre las figuras más relevantes de los últimos 4 años (
