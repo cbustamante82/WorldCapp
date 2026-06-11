@@ -77,7 +77,7 @@ export default function LaminaCard({ lamina, estado, isFan }) {
           {lamina.number}
         </span>
 
-        <span className={['absolute right-1 top-1 z-10 rounded px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide',
+        <span className={['hidden sm:block absolute right-1 top-1 z-10 rounded px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide',
           pegada ? 'bg-white/20 text-white' : 'bg-ink/5 text-ink-soft/70'].join(' ')}>
           {tipo?.label}
         </span>
@@ -85,12 +85,17 @@ export default function LaminaCard({ lamina, estado, isFan }) {
         <span className="relative z-10 flex flex-1 items-center justify-center">
           {pegada
             ? <span className="brand-title text-xl leading-none drop-shadow">✓</span>
-            : <span className="brand-title text-base md:text-2xl lg:text-3xl leading-none text-slot-line opacity-60">{lamina.number}</span>
+            : <span className="hidden sm:inline brand-title text-base md:text-2xl lg:text-3xl leading-none text-slot-line opacity-60">{lamina.number}</span>
           }
         </span>
 
-        <span className="relative z-10 line-clamp-2 w-full text-[10px] font-semibold leading-tight">
+        <span className="hidden sm:block relative z-10 line-clamp-2 w-full text-[10px] font-semibold leading-tight">
           {lamina.name}
+        </span>
+
+        <span className={['sm:hidden relative z-10 w-full text-center text-[8px] font-semibold uppercase tracking-wide',
+          pegada ? 'text-white/80' : 'text-ink-soft/70'].join(' ')}>
+          {tipo?.label}
         </span>
 
         {repetidas > 0 && (

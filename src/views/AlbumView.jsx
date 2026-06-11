@@ -164,13 +164,13 @@ export default function AlbumView() {
             disabled={phase !== 'idle' || displayIdx === 0}
             onClick={() => flipTo(displayIdx - 1)}
           >
-            ‹
+            ‹<span className="hidden md:inline"> Anterior</span>
           </FlipBtn>
           <FlipBtn
             disabled={phase !== 'idle' || displayIdx === ALL_PAGES.length - 1}
             onClick={() => flipTo(displayIdx + 1)}
           >
-            ›
+            <span className="hidden md:inline">Siguiente </span>›
           </FlipBtn>
         </div>
       </div>
@@ -238,6 +238,25 @@ export default function AlbumView() {
             {totalPeg} / {ALBUM_TOTALS.stickers}
           </span>
         </div>
+      </div>
+
+      {/* ── Navegación inferior ──────────────────────────────────────────────── */}
+      <div className="mt-3 flex justify-between gap-2">
+        <FlipBtn
+          disabled={phase !== 'idle' || displayIdx === 0}
+          onClick={() => flipTo(displayIdx - 1)}
+        >
+          ‹<span className="hidden md:inline"> Anterior</span>
+        </FlipBtn>
+        <span className="self-center text-xs tabular text-ink-soft">
+          {displayIdx + 1} / {ALL_PAGES.length}
+        </span>
+        <FlipBtn
+          disabled={phase !== 'idle' || displayIdx === ALL_PAGES.length - 1}
+          onClick={() => flipTo(displayIdx + 1)}
+        >
+          <span className="hidden md:inline">Siguiente </span>›
+        </FlipBtn>
       </div>
 
       {/* ── Diálogo: limpiar repetidas de la página ──────────────────────────── */}
