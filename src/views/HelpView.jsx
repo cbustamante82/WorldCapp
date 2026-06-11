@@ -91,43 +91,6 @@ const SECTIONS = [
   },
 ]
 
-function Section({ section }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="overflow-hidden rounded-xl border border-paper-deep bg-paper shadow-sm">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-paper-deep/40"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{section.icon}</span>
-          <div>
-            <p className="font-bold text-ink">{section.title}</p>
-            <p className="text-xs text-ink-soft">{section.summary}</p>
-          </div>
-        </div>
-        <span className={['text-ink-soft transition-transform duration-200', open ? 'rotate-180' : ''].join(' ')}>
-          ▾
-        </span>
-      </button>
-
-      {open && (
-        <div className="border-t border-paper-deep px-4 pb-4 pt-3">
-          <ul className="space-y-3">
-            {section.steps.map((step, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 flex-shrink-0 text-lg leading-none">{step.icon}</span>
-                <p className="text-sm text-ink-soft leading-relaxed">{step.text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function HelpView() {
   const [allOpen, setAllOpen] = useState(false)
 

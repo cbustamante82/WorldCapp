@@ -50,10 +50,6 @@ export function getPorSeleccion(laminas, estadoMap) {
   return groupBy(laminas, estadoMap, 'seleccionId', (id) => SELECCION_BY_ID[id]?.name || id)
 }
 
-export function getPorTipo(laminas, estadoMap) {
-  return groupBy(laminas, estadoMap, 'tipoId', (id) => TIPO_BY_ID[id]?.label || id)
-}
-
 // Lista plana de láminas con su estado, lista para filtrar/exportar.
 export function getListado(laminas, estadoMap) {
   return laminas.map((l) => {

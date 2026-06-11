@@ -2,20 +2,10 @@
 
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { validatePassword, hashSecretAnswer, SECRET_QUESTIONS, COUNTRIES } from '../auth/authUtils'
+import { validatePassword, hashSecretAnswer, SECRET_QUESTIONS, COUNTRIES, COUNTRY_ISO } from '../auth/authUtils'
 import { SELECCIONES } from '../data/selecciones'
 import { AuthShell }  from './LoginView'
 import FlagSelect     from '../components/FlagSelect'
-
-const COUNTRY_ISO = {
-  'Argentina':'ar','Bolivia':'bo','Brasil':'br','Chile':'cl','Colombia':'co',
-  'Costa Rica':'cr','Cuba':'cu','Ecuador':'ec','El Salvador':'sv','España':'es',
-  'Guatemala':'gt','Honduras':'hn','México':'mx','Nicaragua':'ni','Panamá':'pa',
-  'Paraguay':'py','Perú':'pe','Puerto Rico':'pr','República Dominicana':'do',
-  'Uruguay':'uy','Venezuela':'ve','Estados Unidos':'us','Canadá':'ca',
-  'Francia':'fr','Alemania':'de','Italia':'it','Portugal':'pt','Reino Unido':'gb',
-  'Australia':'au','Japón':'jp','Marruecos':'ma',
-}
 
 const COUNTRY_OPTIONS = COUNTRIES.map((c) => ({ value: c, label: c, iso2: COUNTRY_ISO[c] ?? null }))
 const TEAM_OPTIONS    = SELECCIONES.map((s) => ({ value: s.id, label: s.name, iso2: s.iso2 }))

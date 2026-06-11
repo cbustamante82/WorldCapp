@@ -37,3 +37,13 @@ export const COUNTRIES = [
   'Venezuela','Estados Unidos','Canadá','Francia','Alemania','Italia',
   'Portugal','Reino Unido','Australia','Japón','Marruecos','Otro',
 ]
+
+export const COUNTRY_ISO = {
+  'Argentina':'ar','Bolivia':'bo','Brasil':'br','Chile':'cl','Colombia':'co',
+  'Costa Rica':'cr','Cuba':'cu','Ecuador':'ec','El Salvador':'sv','España':'es',
+  'Guatemala':'gt','Honduras':'hn','México':'mx','Nicaragua':'ni','Panamá':'pa',
+  'Paraguay':'py','Perú':'pe','Puerto Rico':'pr','República Dominicana':'do',
+  'Uruguay':'uy','Venezuela':'ve','Estados Unidos':'us','Canadá':'ca',
+  'Francia':'fr','Alemania':'de','Italia':'it','Portugal':'pt','Reino Unido':'gb',
+  'Australia':'au','Japón':'jp','Marruecos':'ma',
+}
