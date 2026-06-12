@@ -100,7 +100,7 @@ export default function GroupsView() {
             </button>
           )}
           {!apiOk && (
-            <span className="text-[11px] text-amber-600">Sin API configurada</span>
+            <span className="text-[11px] text-amber-600">Sin datos en vivo</span>
           )}
         </div>
       </div>

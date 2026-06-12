@@ -1,15 +1,5 @@
 // matchApi.js — obtiene resultados desde /api/matches y calcula standings
-// Retorna null si la API no está configurada o falla → el caller usa datos estáticos
-
-// Algunos códigos TLA difieren entre football-data.org y nuestro catálogo FIFA
-const TLA_MAP = {
-  KOR: 'KOR', PRK: 'PRK', IRN: 'IRN', KSA: 'KSA',
-  // agrega más si detectas diferencias
-}
-function normTla(tla = '') {
-  const up = tla.toUpperCase()
-  return TLA_MAP[up] ?? up
-}
+// Retorna null si la fuente no está disponible → el caller muestra datos estáticos
 
 // Fetch todos los partidos del WC.
 // Retorna { results, hasLive } o null si falla.
