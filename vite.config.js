@@ -7,6 +7,10 @@ import react from '@vitejs/plugin-react'
 // el check de isSecureContext en LoginView/RegisterView muestra un error claro.
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'node',
+    globals: true,
+  },
   server: {
     port: 5173,
     host: true,   // escucha en 0.0.0.0 → accesible desde la red local
