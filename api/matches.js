@@ -4,16 +4,21 @@
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'
 
-// Algunos códigos de equipo difieren entre ESPN y nuestro catálogo
-const ESPN_TLA = {
-  'SKN': 'SKN', 'ANG': 'ANG', 'ZIM': 'ZIM',
-  'GRN': 'GRN', 'SLV': 'SLV', 'HAI': 'HAI',
-  'HON': 'HON', 'JAM': 'JAM', 'TRI': 'TRI',
-  'RSA': 'RSA', 'EGY': 'EGY', 'CMR': 'CMR',
-  'SEN': 'SEN', 'TUN': 'TUN', 'GHA': 'GHA',
-  'NGA': 'NGA', 'CIV': 'CIV', 'MLI': 'MLI',
+// ESPN abbreviation → código FIFA de nuestro catálogo.
+// La mayoría de los 48 equipos coincide; solo se mapean las excepciones.
+const ESPN_TO_FIFA = {
+  'BOS': 'BIH',  // Bosnia y Herzegovina (ESPN: BOS, FIFA: BIH)
+  'IRI': 'IRN',  // Irán (ESPN: IRI, FIFA: IRN)
+  'DRC': 'COD',  // Rep. Dem. Congo (ESPN: DRC, FIFA: COD)
+  'CUR': 'CUW',  // Curaçao (ESPN: CUR, FIFA: CUW)
+  'CVE': 'CPV',  // Cabo Verde (ESPN: CVE, FIFA: CPV)
+  'HOL': 'NED',  // Países Bajos (alias antiguo)
+  'NET': 'NED',  // Países Bajos (otro alias ESPN)
 }
-const normTla = (t = '') => ESPN_TLA[t.toUpperCase()] ?? t.toUpperCase()
+const normTla = (t = '') => {
+  const up = t.toUpperCase()
+  return ESPN_TO_FIFA[up] ?? up
+}
 
 function mapStatus(state, completed) {
   if (state === 'in')   return 'IN_PLAY'
