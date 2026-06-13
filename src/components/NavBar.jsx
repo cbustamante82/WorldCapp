@@ -13,8 +13,9 @@ const links = [
   { to: '/grupos',      label: 'Grupos'      },
   { to: '/progreso',    label: 'Progreso'    },
   { to: '/exploracion', label: 'Explorar'    },
-  { to: '/cartilla',    label: 'Cartilla'    },
-  { to: '/ayuda',       label: 'Ayuda'       },
+  { to: '/cartilla',      label: 'Cartilla'      },
+  { to: '/intercambios', label: 'Intercambios' },
+  { to: '/ayuda',        label: 'Ayuda'         },
 ]
 
 function NavLinks({ onClose }) {

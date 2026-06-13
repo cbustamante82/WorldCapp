@@ -13,6 +13,7 @@ import GroupsView       from './views/GroupsView'
 import ProgressView     from './views/ProgressView'
 import ExploreView      from './views/ExploreView'
 import TableView        from './views/TableView'
+import IntercambioView  from './views/IntercambioView'
 import HelpView         from './views/HelpView'
 import LoginView        from './views/LoginView'
 import RegisterView     from './views/RegisterView'
@@ -59,8 +60,9 @@ function Inner() {
           <Route path="/grupos"      element={<GroupsView />} />
           <Route path="/progreso"    element={<ProgressView />} />
           <Route path="/exploracion" element={<ExploreView />} />
-          <Route path="/cartilla"    element={<TableView />} />
-          <Route path="/ayuda"       element={<HelpView />} />
+          <Route path="/cartilla"      element={<TableView />} />
+          <Route path="/intercambios" element={<IntercambioView />} />
+          <Route path="/ayuda"        element={<HelpView />} />
         </Routes>
       </main>
       <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-[11px] text-ink-soft">
