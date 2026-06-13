@@ -279,7 +279,7 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
     setError('')
     const yaExiste = intercambios.find(
       i => (i.solicitante_id === u.user_id || i.receptor_id === u.user_id)
-        && ['pendiente', 'aprobado'].includes(i.estado)
+        && i.estado === 'pendiente'
     )
     if (yaExiste) {
       setQuery(u.email)
