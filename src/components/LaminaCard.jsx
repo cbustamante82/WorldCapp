@@ -1,7 +1,7 @@
 // LaminaCard — Lámina individual del álbum.
 // - Click vacío  → marcar pegada
-// - Click pegada → sumar repetida
-// - Botón ✕      → quitar (removeLamina)
+// - Click pegada → desmarcar (removeLamina)
+// - Botón +      → sumar repetida (visible cuando pegada)
 // - Botón −      → restar repetida
 
 import { TIPO_BY_ID } from '../data/tiposLamina'
@@ -26,11 +26,11 @@ export default function LaminaCard({ lamina, estado, isFan }) {
   function handleMainClick() {
     if (!user) return
     if (!pegada) setPegada(lamina.id, true)
-    else         addRepetida(lamina.id, 1)
+    else         removeLamina(lamina.id)
   }
-  function handleRemove(e) {
+  function handleAddRepetida(e) {
     e.stopPropagation()
-    if (user) removeLamina(lamina.id)
+    if (user) addRepetida(lamina.id, 1)
   }
   function handleMinusRepetida(e) {
     e.stopPropagation()
@@ -46,7 +46,7 @@ export default function LaminaCard({ lamina, estado, isFan }) {
       <button
         type="button"
         onClick={handleMainClick}
-        title={pegada ? 'Sumar repetida' : 'Marcar como pegada'}
+        title={pegada ? 'Desmarcar lámina' : 'Marcar como pegada'}
         className={[
           'relative flex h-full w-full flex-col items-center justify-between overflow-hidden rounded-md p-2 text-center transition',
           'aspect-[3/4] select-none',
@@ -117,11 +117,11 @@ export default function LaminaCard({ lamina, estado, isFan }) {
       {pegada && (
         <button
           type="button"
-          onClick={handleRemove}
-          title="Quitar lámina"
-          className="absolute -left-1.5 -top-1.5 z-20 hidden h-5 w-5 items-center justify-center rounded-full bg-accent-red text-xs font-bold text-white shadow group-hover:flex"
+          onClick={handleAddRepetida}
+          title="Sumar repetida"
+          className="absolute -bottom-1.5 -right-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-accent-gold text-xs font-bold text-ink shadow"
         >
-          ✕
+          +
         </button>
       )}
     </div>
