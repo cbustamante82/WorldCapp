@@ -22,7 +22,7 @@ function getPageColor(page) {
 }
 
 export default function TableView() {
-  const { map: estadoMap, setPegada, removeLamina } = useCollection()
+  const { map: estadoMap, setPegada, removeLamina, addRepetida } = useCollection()
   const navigate = useNavigate()
   const [recentlyMarked, setRecentlyMarked] = useState(() => new Set())
 
@@ -52,34 +52,64 @@ export default function TableView() {
     navigate(`/album?seccion=${page.sectionId}`)
   }
 
+  function handleRepetida(e, laminaId, delta) {
+    e.stopPropagation()
+    addRepetida(laminaId, delta)
+  }
+
   // Renderiza los recuadros de láminas (reutilizado en móvil y desktop)
   function Chips({ laminas, color }) {
     return laminas.map((l) => {
-      const pegada    = getEstado(estadoMap, l.id).pegada
+      const estado    = getEstado(estadoMap, l.id)
+      const { pegada, repetidas } = estado
       const isRecent  = pegada && recentlyMarked.has(l.id)
       const chipColor = isRecent ? RECENT_COLOR : color
-      const clickable = true
       return (
         <div
           key={l.id}
-          title={`${l.number} · ${l.name}${pegada ? ' (pegada — clic para desmarcar)' : ' (faltante — clic para pegar)'}`}
-          onClick={() => handleChipClick(l.id, pegada)}
-          className={[
-            'flex-shrink-0 w-10 md:w-12 lg:w-14 rounded px-1 md:px-1.5 lg:px-2 py-1.5 md:py-2 lg:py-2.5 text-center select-none transition-opacity',
-            clickable ? 'cursor-pointer hover:opacity-80' : 'cursor-default',
-          ].join(' ')}
-          style={
-            pegada
-              ? { backgroundColor: chipColor }
-              : { border: `1.5px solid ${chipColor}`, opacity: 0.5 }
-          }
+          className="flex-shrink-0 w-10 md:w-12 lg:w-14 flex-shrink-0 overflow-hidden rounded select-none"
+          style={pegada ? { backgroundColor: chipColor } : { border: `1.5px solid ${chipColor}`, opacity: 0.5 }}
         >
-          <p
-            className="text-[9px] md:text-[11px] lg:text-xs font-bold leading-none tabular whitespace-nowrap"
-            style={{ color: pegada ? '#ffffff' : chipColor }}
+          {/* Área principal: toggle pegada */}
+          <div
+            title={`${l.number} · ${l.name}${pegada ? ' (clic para desmarcar)' : ' (clic para pegar)'}`}
+            onClick={() => handleChipClick(l.id, pegada)}
+            className="px-1 md:px-1.5 lg:px-2 py-1.5 md:py-2 lg:py-2.5 text-center cursor-pointer hover:opacity-80 transition-opacity"
           >
-            {l.number}
-          </p>
+            <p
+              className="text-[9px] md:text-[11px] lg:text-xs font-bold leading-none tabular whitespace-nowrap"
+              style={{ color: pegada ? '#ffffff' : chipColor }}
+            >
+              {l.number}
+            </p>
+            {repetidas > 0 && (
+              <p className="text-[7px] font-bold leading-none mt-0.5 text-white/75 tabular">
+                ×{repetidas}
+              </p>
+            )}
+          </div>
+
+          {/* Franja − / + repetidas (solo cuando pegada) */}
+          {pegada && (
+            <div className="flex" style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}>
+              <button
+                type="button"
+                title="Restar repetida"
+                onClick={(e) => handleRepetida(e, l.id, -1)}
+                className="flex-1 text-[11px] font-bold text-white/70 hover:text-white hover:bg-black/20 leading-none py-0.5 transition-colors"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                title="Sumar repetida"
+                onClick={(e) => handleRepetida(e, l.id, 1)}
+                className="flex-1 text-[11px] font-bold text-white/70 hover:text-white hover:bg-black/20 leading-none py-0.5 transition-colors"
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
       )
     })
