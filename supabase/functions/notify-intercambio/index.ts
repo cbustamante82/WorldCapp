@@ -1,9 +1,11 @@
 // Edge Function: notify-intercambio
 // Disparada por un Database Webhook en INSERT sobre public.intercambios.
-// Envía un email al receptor via Resend (resend.com).
+// Envía un email al receptor via Brevo (brevo.com).
 //
 // Variables de entorno requeridas en Supabase → Settings → Edge Functions:
-//   RESEND_API_KEY        — clave de API de Resend
+//   BREVO_API_KEY         — clave de API de Brevo (Transactional Emails)
+//   BREVO_SENDER_EMAIL    — email verificado en Brevo como remitente
+//   BREVO_SENDER_NAME     — nombre del remitente (ej: WorldCapp)
 //   APP_URL               — URL pública de la app (ej: https://worldcapp.vercel.app)
 //
 // Variables que Supabase inyecta automáticamente:
@@ -12,10 +14,12 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const RESEND_API_KEY          = Deno.env.get('RESEND_API_KEY')
-const SUPABASE_URL            = Deno.env.get('SUPABASE_URL')!
-const SUPABASE_SERVICE_ROLE   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const APP_URL                 = Deno.env.get('APP_URL') ?? 'https://worldcapp.vercel.app'
+const BREVO_API_KEY       = Deno.env.get('BREVO_API_KEY')
+const BREVO_SENDER_EMAIL  = Deno.env.get('BREVO_SENDER_EMAIL') ?? 'no-reply@worldcapp.vercel.app'
+const BREVO_SENDER_NAME   = Deno.env.get('BREVO_SENDER_NAME')  ?? 'WorldCapp'
+const SUPABASE_URL        = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const APP_URL             = Deno.env.get('APP_URL') ?? 'https://worldcapp.vercel.app'
 
 serve(async (req) => {
   try {
@@ -37,33 +41,34 @@ serve(async (req) => {
     const solicitante = solicitanteData?.user
     if (!receptor?.email) return new Response('receptor not found', { status: 404 })
 
+    const receptorNombre = receptor.user_metadata?.nombre ?? receptor.email.split('@')[0]
     const solicitanteNombre =
       solicitante?.user_metadata?.nombre ??
       solicitante?.email?.split('@')[0]   ??
       'Un coleccionista'
 
-    if (!RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY no configurada — email omitido')
+    if (!BREVO_API_KEY) {
+      console.warn('BREVO_API_KEY no configurada — email omitido')
       return new Response(JSON.stringify({ skipped: true }), { status: 200 })
     }
 
-    const emailRes = await fetch('https://api.resend.com/emails', {
+    const emailRes = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'api-key': BREVO_API_KEY,
       },
       body: JSON.stringify({
-        from: 'WorldCapp <no-reply@worldcapp.vercel.app>',
-        to:   receptor.email,
+        sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+        to: [{ email: receptor.email, name: receptorNombre }],
         subject: `${solicitanteNombre} te envió una solicitud de intercambio`,
-        html: buildEmailHtml(solicitanteNombre, APP_URL),
+        htmlContent: buildEmailHtml(solicitanteNombre, APP_URL),
       }),
     })
 
     if (!emailRes.ok) {
       const err = await emailRes.text()
-      console.error('Resend error:', err)
+      console.error('Brevo error:', err)
       return new Response(err, { status: 500 })
     }
 
