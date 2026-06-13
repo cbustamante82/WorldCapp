@@ -8,9 +8,9 @@ const SECTIONS = [
     summary: 'Navega página por página y registra tus láminas',
     steps: [
       { icon: '👆', text: 'Toca una lámina vacía para marcarla como pegada. El fondo cambia al color del equipo.' },
-      { icon: '🔁', text: 'Toca nuevamente una lámina pegada para sumar una repetida. Aparece el contador dorado (×2, ×3…).' },
+      { icon: '↩️', text: 'Toca de nuevo una lámina pegada para desmarcarla. Vuelve a estar vacía y se borran sus repetidas.' },
+      { icon: '➕', text: 'Usa el botón + (esquina inferior-derecha de la lámina pegada) para registrar copias repetidas. Aparece el contador dorado (×2, ×3…).' },
       { icon: '➖', text: 'Presiona el signo − dentro del contador dorado para restar una repetida.' },
-      { icon: '✕', text: 'Pasa el cursor (o mantén presionado en móvil) sobre una lámina pegada y toca ✕ para despegarla.' },
       { icon: '⬅️', text: 'Usa los botones Anterior / Siguiente o desliza horizontalmente para pasar de página.' },
       { icon: '⌨️', text: 'En escritorio puedes usar las teclas ← → del teclado para navegar.' },
       { icon: '🔍', text: 'Usa el selector desplegable para saltar directamente a cualquier selección o sección especial.' },
@@ -24,7 +24,7 @@ const SECTIONS = [
     steps: [
       { icon: '🏆', text: 'La sección FWC incluye láminas conmemorativas: copa, mascota, emblemas de las sedes y campeones históricos.' },
       { icon: '🥤', text: 'Coca-Cola Stars contiene 14 figuras destacadas del fútbol mundial patrocinadas por Coca-Cola.' },
-      { icon: '👆', text: 'La interacción es igual que en el álbum: toca para pegar, toca de nuevo para sumar repetida.' },
+      { icon: '👆', text: 'La interacción es igual que en el álbum: toca para pegar, toca de nuevo para desmarcar y usa el botón + para sumar repetidas.' },
     ],
   },
   {
@@ -72,9 +72,24 @@ const SECTIONS = [
     steps: [
       { icon: '👁️', text: 'La cartilla muestra todas las páginas del álbum de un vistazo. Cada recuadro es una lámina.' },
       { icon: '🎨', text: 'Recuadro relleno = pegada (color del equipo). Recuadro solo con borde = faltante.' },
-      { icon: '🔵', text: 'Las láminas que marques desde la cartilla aparecen en azul durante esa sesión, confirmando que las acabas de agregar.' },
-      { icon: '👆', text: 'Toca un recuadro faltante para marcarlo como pegado. Toca el recuadro azul nuevamente para desmarcarlo.' },
+      { icon: '🔵', text: 'Las láminas recién marcadas aparecen en azul durante la sesión como confirmación visual.' },
+      { icon: '👆', text: 'Toca cualquier recuadro para marcarlo o desmarcarlo. Funciona con todas las láminas, no solo las recién agregadas.' },
+      { icon: '➕➖', text: 'Las láminas pegadas muestran una franja − / + en la parte inferior para sumar o restar repetidas. El contador ×N aparece en el recuadro si hay alguna.' },
       { icon: '🔗', text: 'Toca el nombre de la sección para ir directamente a esa página en el álbum.' },
+    ],
+  },
+  {
+    id: 'intercambios',
+    icon: '🔄',
+    title: 'Intercambios',
+    summary: 'Comparte repetidas y recibe faltantes de otros coleccionistas',
+    steps: [
+      { icon: '🔍', text: 'En "Nueva solicitud" escribe el nombre o email de otro usuario. El autocompletado sugiere coincidencias a partir de 3 caracteres.' },
+      { icon: '📨', text: 'Selecciona el usuario y pulsa "Enviar solicitud". El otro coleccionista debe aceptarla antes de que puedan ver el detalle.' },
+      { icon: '✅', text: 'En la pestaña "Recibidas" verás las solicitudes pendientes con los botones Aprobar y Rechazar.' },
+      { icon: '❌', text: 'Si rechazas una solicitud, el remitente verá en "Enviadas" que no fue aceptada.' },
+      { icon: '🔄', text: 'Al aprobar, ambos usuarios pueden abrir el detalle del intercambio con el botón "Ver intercambio".' },
+      { icon: '📊', text: 'El detalle muestra dos listas: las repetidas que tú tienes y al otro le faltan, y las repetidas del otro que a ti te faltan.' },
     ],
   },
   {
