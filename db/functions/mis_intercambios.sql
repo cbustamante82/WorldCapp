@@ -24,8 +24,8 @@ AS $$
     i.created_at,
     CASE WHEN i.solicitante_id = auth.uid() THEN u2.email ELSE u1.email END,
     CASE WHEN i.solicitante_id = auth.uid()
-         THEN COALESCE(u2.raw_user_meta_data->>'nombre', split_part(u2.email, '@', 1))
-         ELSE COALESCE(u1.raw_user_meta_data->>'nombre', split_part(u1.email, '@', 1))
+         THEN COALESCE(u2.raw_user_meta_data->>'name', split_part(u2.email, '@', 1))
+         ELSE COALESCE(u1.raw_user_meta_data->>'name', split_part(u1.email, '@', 1))
     END,
     (i.solicitante_id = auth.uid())
   FROM public.intercambios i

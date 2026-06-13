@@ -9,7 +9,7 @@ AS $$
   SELECT
     id                                                                  AS user_id,
     email,
-    COALESCE(raw_user_meta_data->>'nombre', split_part(email, '@', 1)) AS nombre
+    COALESCE(raw_user_meta_data->>'name', split_part(email, '@', 1)) AS nombre
   FROM auth.users
   WHERE lower(email) = lower(email_input)
     AND id != auth.uid()

@@ -41,10 +41,10 @@ serve(async (req) => {
     const solicitante = solicitanteData?.user
     if (!receptor?.email) return new Response('receptor not found', { status: 404 })
 
-    const receptorNombre = receptor.user_metadata?.nombre ?? receptor.email.split('@')[0]
+    const receptorNombre = receptor.user_metadata?.name ?? receptor.email.split('@')[0]
     const solicitanteNombre =
-      solicitante?.user_metadata?.nombre ??
-      solicitante?.email?.split('@')[0]   ??
+      solicitante?.user_metadata?.name ??
+      solicitante?.email?.split('@')[0]  ??
       'Un coleccionista'
 
     if (!BREVO_API_KEY) {

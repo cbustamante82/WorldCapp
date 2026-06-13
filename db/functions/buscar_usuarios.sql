@@ -10,12 +10,12 @@ AS $$
   SELECT
     id                                                                  AS user_id,
     email,
-    COALESCE(raw_user_meta_data->>'nombre', split_part(email, '@', 1)) AS nombre
+    COALESCE(raw_user_meta_data->>'name', split_part(email, '@', 1)) AS nombre
   FROM auth.users
   WHERE id != auth.uid()
     AND (
       email ILIKE '%' || query_input || '%'
-      OR (raw_user_meta_data->>'nombre') ILIKE '%' || query_input || '%'
+      OR (raw_user_meta_data->>'name') ILIKE '%' || query_input || '%'
     )
   ORDER BY
     CASE WHEN lower(email) LIKE lower(query_input) || '%' THEN 0 ELSE 1 END,
