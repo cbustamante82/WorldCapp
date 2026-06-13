@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../auth/AuthContext'
 import { LAMINAS } from '../data/laminas'
@@ -247,52 +247,65 @@ function ListaCards({ items, empty, renderActions }) {
   )
 }
 
-// ─── Nueva solicitud ──────────────────────────────────────────────────────────
+// ─── Nueva solicitud (con autocomplete) ──────────────────────────────────────
 function NuevaSolicitud({ userId, intercambios, onSent }) {
-  const [email,    setEmail]    = useState('')
-  const [searching,setSearching]= useState(false)
-  const [found,    setFound]    = useState(null)
-  const [error,    setError]    = useState('')
-  const [sending,  setSending]  = useState(false)
-  const [sent,     setSent]     = useState(false)
+  const [query,       setQuery]       = useState('')
+  const [suggestions, setSuggestions] = useState([])
+  const [searching,   setSearching]   = useState(false)
+  const [showDrop,    setShowDrop]    = useState(false)
+  const [selected,    setSelected]    = useState(null) // usuario elegido
+  const [error,       setError]       = useState('')
+  const [sending,     setSending]     = useState(false)
+  const [sent,        setSent]        = useState(false)
+  const debounceRef = useRef(null)
 
-  async function handleSearch(e) {
-    e?.preventDefault()
-    const trimmed = email.trim()
-    if (!trimmed) return
-    setSearching(true)
-    setFound(null)
+  // Dispara búsqueda parcial tras 300 ms de inactividad, mínimo 3 chars
+  useEffect(() => {
+    if (query.length < 3) { setSuggestions([]); setShowDrop(false); return }
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true)
+      const { data } = await supabase.rpc('buscar_usuarios', { query_input: query.trim() })
+      setSuggestions(data ?? [])
+      setShowDrop(true)
+      setSearching(false)
+    }, 300)
+    return () => clearTimeout(debounceRef.current)
+  }, [query])
+
+  function handleSelect(u) {
+    setShowDrop(false)
+    setSuggestions([])
     setError('')
-
-    const { data, error: rpcErr } = await supabase.rpc('buscar_usuario', { email_input: trimmed })
-    setSearching(false)
-
-    if (rpcErr || !data?.length) {
-      setError('Usuario no encontrado. Verificá el email ingresado.')
-      return
-    }
-
-    const found = data[0]
     const yaExiste = intercambios.find(
-      i => i.solicitante_id === found.user_id || i.receptor_id === found.user_id
+      i => i.solicitante_id === u.user_id || i.receptor_id === u.user_id
     )
     if (yaExiste) {
-      setError('Ya tenés una solicitud activa con este usuario.')
+      setQuery(u.email)
+      setSelected(null)
+      setError('Ya tienes una solicitud activa con este usuario.')
       return
     }
-    setFound(found)
+    setSelected(u)
+    setQuery(u.email)
+  }
+
+  function handleQueryChange(e) {
+    setQuery(e.target.value)
+    setSelected(null)
+    setError('')
   }
 
   async function handleSend() {
-    if (!found) return
+    if (!selected) return
     setSending(true)
     const { error: insertErr } = await supabase.from('intercambios').insert({
       solicitante_id: userId,
-      receptor_id: found.user_id,
+      receptor_id: selected.user_id,
     })
     setSending(false)
     if (insertErr) {
-      setError('No se pudo enviar la solicitud. Intentá de nuevo.')
+      setError('No se pudo enviar la solicitud. Inténtalo de nuevo.')
     } else {
       setSent(true)
       setTimeout(onSent, 1500)
@@ -304,7 +317,7 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
       <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <p className="text-lg font-bold text-green-700">¡Solicitud enviada!</p>
         <p className="mt-1 text-sm text-green-600">
-          Cuando {found?.nombre} la acepte, podrán ver las láminas disponibles para el intercambio.
+          Cuando {selected?.nombre} la acepte, podrán ver las láminas disponibles para el intercambio.
         </p>
       </div>
     )
@@ -313,33 +326,61 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-paper-deep bg-paper p-5">
-        <h2 className="mb-4 font-semibold text-ink">Buscar usuario por email</h2>
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <h2 className="mb-4 font-semibold text-ink">Buscar usuario</h2>
+
+        {/* Input con autocomplete */}
+        <div className="relative">
           <input
-            type="email"
-            value={email}
-            onChange={e => { setEmail(e.target.value); setFound(null); setError('') }}
-            placeholder="email del otro usuario"
-            className="flex-1 rounded-lg border border-paper-deep bg-paper-deep/40 px-3 py-2 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-pitch/30"
+            type="text"
+            value={query}
+            onChange={handleQueryChange}
+            onFocus={() => suggestions.length > 0 && setShowDrop(true)}
+            onBlur={() => setTimeout(() => setShowDrop(false), 150)}
+            placeholder="Nombre o email (mínimo 3 caracteres)"
+            autoComplete="off"
+            className="w-full rounded-lg border border-paper-deep bg-paper-deep/40 px-3 py-2 pr-8 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-pitch/30"
           />
-          <button
-            type="submit"
-            disabled={searching || !email.trim()}
-            className="rounded-lg bg-pitch px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
-          >
-            {searching ? '...' : 'Buscar'}
-          </button>
-        </form>
+          {searching && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-soft/60">
+              ···
+            </span>
+          )}
+
+          {/* Dropdown de sugerencias */}
+          {showDrop && (
+            <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-paper-deep bg-paper shadow-lg">
+              {suggestions.length > 0 ? suggestions.map(u => (
+                <button
+                  key={u.user_id}
+                  type="button"
+                  onMouseDown={() => handleSelect(u)}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-paper-deep"
+                >
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-pitch/10 text-xs font-bold text-pitch">
+                    {u.nombre[0]?.toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-ink">{u.nombre}</p>
+                    <p className="truncate text-xs text-ink-soft">{u.email}</p>
+                  </div>
+                </button>
+              )) : (
+                <p className="px-4 py-3 text-center text-sm text-ink-soft">Sin resultados</p>
+              )}
+            </div>
+          )}
+        </div>
 
         {error && (
           <p className="mt-2 text-sm font-medium text-accent-red">{error}</p>
         )}
 
-        {found && (
+        {/* Usuario seleccionado + botón enviar */}
+        {selected && (
           <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50/60 px-4 py-3">
             <div className="min-w-0">
-              <p className="font-semibold text-ink">{found.nombre}</p>
-              <p className="text-xs text-ink-soft truncate">{found.email}</p>
+              <p className="font-semibold text-ink">{selected.nombre}</p>
+              <p className="truncate text-xs text-ink-soft">{selected.email}</p>
             </div>
             <button
               type="button"
