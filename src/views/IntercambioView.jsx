@@ -6,7 +6,7 @@ import { SELECCION_BY_ID } from '../data/selecciones'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtFecha(iso) {
-  return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: '2-digit' })
+  return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })
 }
 
 const ESTADO_STYLE = {
@@ -112,7 +112,7 @@ export default function IntercambioView() {
     <div className="mx-auto max-w-2xl px-4 py-6">
       <h1 className="brand-title text-4xl text-ink mb-1">Intercambios</h1>
       <p className="mb-6 text-sm text-ink-soft">
-        Compartí tus repetidas y recibí las que te faltan de otros coleccionistas.
+        Comparte tus repetidas y recibe las que te faltan de otros coleccionistas.
       </p>
 
       {/* Tabs */}
@@ -141,7 +141,7 @@ export default function IntercambioView() {
       {!loading && tab === 'recibidas' && (
         <ListaCards
           items={recibidas}
-          empty="No tenés solicitudes recibidas."
+          empty="No tienes solicitudes recibidas."
           loadingDetalle={loadingDetalle}
           renderActions={(ix) => {
             if (ix.estado === 'pendiente') return (
@@ -180,7 +180,7 @@ export default function IntercambioView() {
       {!loading && tab === 'enviadas' && (
         <ListaCards
           items={enviadas}
-          empty="Todavía no enviaste solicitudes."
+          empty="Aún no has enviado solicitudes."
           loadingDetalle={loadingDetalle}
           renderActions={(ix) => {
             if (ix.estado === 'aprobado') return (
@@ -304,7 +304,7 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
       <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <p className="text-lg font-bold text-green-700">¡Solicitud enviada!</p>
         <p className="mt-1 text-sm text-green-600">
-          Cuando {found?.nombre} la acepte, podrán ver las láminas disponibles para intercambiar.
+          Cuando {found?.nombre} la acepte, podrán ver las láminas disponibles para el intercambio.
         </p>
       </div>
     )
@@ -354,7 +354,7 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
       </div>
 
       <p className="text-center text-xs text-ink-soft">
-        El otro usuario deberá aceptar la solicitud para que puedan ver las láminas disponibles para intercambiar.
+        El otro usuario deberá aceptar la solicitud para que puedan ver las láminas disponibles para el intercambio.
       </p>
     </div>
   )
@@ -384,7 +384,7 @@ function DetalleIntercambio({ detalle, onBack }) {
         title="Lo que yo puedo aportar"
         subtitle={`Mis repetidas que a ${ix.otro_usuario_nombre} le faltan`}
         laminas={canGive}
-        emptyMsg="No tenés repetidas que le falten a este usuario."
+        emptyMsg="No tienes repetidas que le falten a este usuario."
         colorClass="text-pitch"
       />
 
@@ -392,7 +392,7 @@ function DetalleIntercambio({ detalle, onBack }) {
         title="Lo que me pueden aportar"
         subtitle={`Las repetidas de ${ix.otro_usuario_nombre} que a mí me faltan`}
         laminas={canReceive}
-        emptyMsg={`${ix.otro_usuario_nombre} no tiene repetidas que a vos te falten.`}
+        emptyMsg={`${ix.otro_usuario_nombre} no tiene repetidas que a ti te falten.`}
         colorClass="text-accent-gold"
       />
     </div>
