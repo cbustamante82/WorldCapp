@@ -22,7 +22,7 @@ function getPageColor(page) {
 }
 
 export default function TableView() {
-  const { map: estadoMap, setPegada } = useCollection()
+  const { map: estadoMap, setPegada, removeLamina } = useCollection()
   const navigate = useNavigate()
   const [recentlyMarked, setRecentlyMarked] = useState(() => new Set())
 
@@ -38,8 +38,8 @@ export default function TableView() {
     if (!pegada) {
       setPegada(laminaId, true)
       setRecentlyMarked((prev) => new Set([...prev, laminaId]))
-    } else if (recentlyMarked.has(laminaId)) {
-      setPegada(laminaId, false)
+    } else {
+      removeLamina(laminaId)
       setRecentlyMarked((prev) => {
         const next = new Set(prev)
         next.delete(laminaId)
@@ -58,11 +58,11 @@ export default function TableView() {
       const pegada    = getEstado(estadoMap, l.id).pegada
       const isRecent  = pegada && recentlyMarked.has(l.id)
       const chipColor = isRecent ? RECENT_COLOR : color
-      const clickable = !pegada || isRecent
+      const clickable = true
       return (
         <div
           key={l.id}
-          title={`${l.number} · ${l.name}${isRecent ? ' (recién agregada — clic para quitar)' : !pegada ? ' (faltante — clic para pegar)' : ''}`}
+          title={`${l.number} · ${l.name}${pegada ? ' (pegada — clic para desmarcar)' : ' (faltante — clic para pegar)'}`}
           onClick={() => handleChipClick(l.id, pegada)}
           className={[
             'flex-shrink-0 w-10 md:w-12 lg:w-14 rounded px-1 md:px-1.5 lg:px-2 py-1.5 md:py-2 lg:py-2.5 text-center select-none transition-opacity',
