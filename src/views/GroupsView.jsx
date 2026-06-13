@@ -345,7 +345,7 @@ function MatchRow({ match, liveResult }) {
 
   const isLive     = ['IN_PLAY', 'PAUSED', 'HALF_TIME'].includes(res?.status)
   const isFinished = res?.status === 'FINISHED' || (res && res.g1 !== null && !isLive)
-  const hasScore   = res?.g1 !== null && res?.g2 !== null
+  const hasScore   = res != null && res.g1 != null && res.g2 != null
 
   return (
     <div className={[
