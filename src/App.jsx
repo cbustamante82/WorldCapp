@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import { LoadingProvider } from './context/LoadingContext'
 import { CollectionProvider } from './context/CollectionContext'
+import { NotificacionesProvider } from './context/NotificacionesContext'
 import NavBar           from './components/NavBar'
 import HomeView         from './views/HomeView'
 import AlbumView        from './views/AlbumView'
@@ -24,11 +25,13 @@ export default function App() {
   return (
     <AuthProvider>
       <CollectionProvider>
-        <LoadingProvider>
-          <BrowserRouter>
-            <Inner />
-          </BrowserRouter>
-        </LoadingProvider>
+        <NotificacionesProvider>
+          <LoadingProvider>
+            <BrowserRouter>
+              <Inner />
+            </BrowserRouter>
+          </LoadingProvider>
+        </NotificacionesProvider>
       </CollectionProvider>
     </AuthProvider>
   )

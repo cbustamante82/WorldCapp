@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { useNotificaciones } from '../context/NotificacionesContext'
 import { SELECCION_BY_ID } from '../data/selecciones'
 import { whatsappInviteUrl } from '../lib/share'
 import FlagImg from './FlagImg'
@@ -19,6 +20,7 @@ const links = [
 ]
 
 function NavLinks({ onClose }) {
+  const { pendingCount } = useNotificaciones()
   return links.map((l) => (
     <NavLink
       key={l.to}
@@ -31,7 +33,14 @@ function NavLinks({ onClose }) {
         ].join(' ')
       }
     >
-      {l.label}
+      <span className="relative inline-flex items-center gap-1.5">
+        {l.label}
+        {l.to === '/intercambios' && pendingCount > 0 && (
+          <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-red px-1 text-[10px] font-bold text-white leading-none">
+            {pendingCount}
+          </span>
+        )}
+      </span>
     </NavLink>
   ))
 }
