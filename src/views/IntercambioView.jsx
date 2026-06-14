@@ -10,14 +10,16 @@ function fmtFecha(iso) {
 }
 
 const ESTADO_STYLE = {
-  pendiente: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  aprobado:  'bg-green-100  text-green-800  border-green-200',
-  rechazado: 'bg-red-100    text-red-700    border-red-200',
+  pendiente:  'bg-yellow-100 text-yellow-800 border-yellow-200',
+  aprobado:   'bg-green-100  text-green-800  border-green-200',
+  rechazado:  'bg-red-100    text-red-700    border-red-200',
+  completado: 'bg-blue-100   text-blue-800   border-blue-200',
 }
 const ESTADO_LABEL = {
-  pendiente: 'Pendiente',
-  aprobado:  'Aprobado',
-  rechazado: 'Rechazado',
+  pendiente:  'Pendiente',
+  aprobado:   'Aprobado',
+  rechazado:  'Rechazado',
+  completado: 'Completado',
 }
 
 async function computeExchange(myId, otherId) {
@@ -30,15 +32,11 @@ async function computeExchange(myId, otherId) {
   for (const r of myData    ?? []) myMap[r.lamina_id]    = r
   for (const r of theirData ?? []) theirMap[r.lamina_id] = r
 
-  // Mis repetidas que al otro le faltan
-  const canGive = LAMINAS.filter(l =>
-    (myMap[l.id]?.repetidas ?? 0) > 0 && !theirMap[l.id]?.pegada
-  )
-  // Sus repetidas que a mí me faltan
-  const canReceive = LAMINAS.filter(l =>
-    (theirMap[l.id]?.repetidas ?? 0) > 0 && !myMap[l.id]?.pegada
-  )
-  return { canGive, canReceive }
+  const canGive        = LAMINAS.filter(l => (myMap[l.id]?.repetidas    ?? 0) > 0 && !theirMap[l.id]?.pegada)
+  const canReceive     = LAMINAS.filter(l => (theirMap[l.id]?.repetidas ?? 0) > 0 && !myMap[l.id]?.pegada)
+  const myRepetidas    = LAMINAS.filter(l => (myMap[l.id]?.repetidas    ?? 0) > 0)
+  const theirRepetidas = LAMINAS.filter(l => (theirMap[l.id]?.repetidas ?? 0) > 0)
+  return { canGive, canReceive, myRepetidas, theirRepetidas }
 }
 
 // ─── Vista principal ──────────────────────────────────────────────────────────
@@ -47,8 +45,9 @@ export default function IntercambioView() {
   const [tab,            setTab]            = useState('recibidas')
   const [intercambios,   setIntercambios]   = useState([])
   const [loading,        setLoading]        = useState(true)
-  const [loadingDetalle, setLoadingDetalle] = useState(null) // id del intercambio cargando
+  const [loadingDetalle, setLoadingDetalle] = useState(null)
   const [detalle,        setDetalle]        = useState(null)
+  const [confirmando,    setConfirmando]    = useState(false)
 
   const fetchIntercambios = useCallback(async () => {
     if (!user) return
@@ -84,6 +83,16 @@ export default function IntercambioView() {
   }
 
   async function abrirDetalle(ix) {
+    if (ix.estado === 'completado') {
+      // Muestra las láminas almacenadas, ajustando perspectiva para el receptor
+      const perspDoy    = ix.es_solicitante ? ix.laminas_doy    : ix.laminas_recibo
+      const perspRecibo = ix.es_solicitante ? ix.laminas_recibo : ix.laminas_doy
+      const canGive    = LAMINAS.filter(l => (perspDoy    ?? []).includes(l.id))
+      const canReceive = LAMINAS.filter(l => (perspRecibo ?? []).includes(l.id))
+      setDetalle({ ix, canGive, canReceive, myRepetidas: [], theirRepetidas: [] })
+      return
+    }
+
     const otherId = ix.es_solicitante ? ix.receptor_id : ix.solicitante_id
     setLoadingDetalle(ix.id)
     try {
@@ -94,8 +103,33 @@ export default function IntercambioView() {
     }
   }
 
+  function handleConfirmado() {
+    setDetalle(null)
+    setConfirmando(false)
+    fetchIntercambios()
+  }
+
   if (detalle) {
-    return <DetalleIntercambio detalle={detalle} onBack={() => setDetalle(null)} />
+    if (confirmando) {
+      return (
+        <ConfirmarIntercambio
+          ix={detalle.ix}
+          canGive={detalle.canGive}
+          canReceive={detalle.canReceive}
+          myRepetidas={detalle.myRepetidas}
+          theirRepetidas={detalle.theirRepetidas}
+          onBack={() => setConfirmando(false)}
+          onConfirmed={handleConfirmado}
+        />
+      )
+    }
+    return (
+      <DetalleIntercambio
+        detalle={detalle}
+        onBack={() => setDetalle(null)}
+        onConfirmar={detalle.ix.estado === 'aprobado' ? () => setConfirmando(true) : null}
+      />
+    )
   }
 
   const recibidas       = intercambios.filter(i => !i.es_solicitante)
@@ -107,6 +141,19 @@ export default function IntercambioView() {
     { id: 'enviadas',  label: 'Enviadas' },
     { id: 'nueva',     label: '+ Nueva solicitud' },
   ]
+
+  function btnDetalle(ix) {
+    return (
+      <button
+        type="button"
+        onClick={() => abrirDetalle(ix)}
+        disabled={loadingDetalle === ix.id}
+        className="rounded-lg bg-pitch px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+      >
+        {loadingDetalle === ix.id ? 'Cargando...' : 'Ver intercambio'}
+      </button>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -142,36 +189,20 @@ export default function IntercambioView() {
         <ListaCards
           items={recibidas}
           empty="No tienes solicitudes recibidas."
-          loadingDetalle={loadingDetalle}
           renderActions={(ix) => {
             if (ix.estado === 'pendiente') return (
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => aprobar(ix.id)}
-                  className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 transition-colors"
-                >
+                <button type="button" onClick={() => aprobar(ix.id)}
+                  className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 transition-colors">
                   Aprobar
                 </button>
-                <button
-                  type="button"
-                  onClick={() => rechazar(ix.id)}
-                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-accent-red hover:bg-red-50 transition-colors"
-                >
+                <button type="button" onClick={() => rechazar(ix.id)}
+                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-accent-red hover:bg-red-50 transition-colors">
                   Rechazar
                 </button>
               </div>
             )
-            if (ix.estado === 'aprobado') return (
-              <button
-                type="button"
-                onClick={() => abrirDetalle(ix)}
-                disabled={loadingDetalle === ix.id}
-                className="rounded-lg bg-pitch px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
-              >
-                {loadingDetalle === ix.id ? 'Cargando...' : 'Ver intercambio'}
-              </button>
-            )
+            if (ix.estado === 'aprobado' || ix.estado === 'completado') return btnDetalle(ix)
             return null
           }}
         />
@@ -181,18 +212,8 @@ export default function IntercambioView() {
         <ListaCards
           items={enviadas}
           empty="Aún no has enviado solicitudes."
-          loadingDetalle={loadingDetalle}
           renderActions={(ix) => {
-            if (ix.estado === 'aprobado') return (
-              <button
-                type="button"
-                onClick={() => abrirDetalle(ix)}
-                disabled={loadingDetalle === ix.id}
-                className="rounded-lg bg-pitch px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
-              >
-                {loadingDetalle === ix.id ? 'Cargando...' : 'Ver intercambio'}
-              </button>
-            )
+            if (ix.estado === 'aprobado' || ix.estado === 'completado') return btnDetalle(ix)
             if (ix.estado === 'rechazado') return (
               <p className="text-xs text-accent-red font-medium">
                 Este usuario no aceptó la solicitud.
@@ -231,8 +252,8 @@ function ListaCards({ items, empty, renderActions }) {
                 <p className="text-xs text-ink-soft truncate">{ix.otro_usuario_email}</p>
                 <p className="mt-1 text-[11px] text-ink-soft/70">{fmtFecha(ix.created_at)}</p>
               </div>
-              <span className={`flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${ESTADO_STYLE[ix.estado]}`}>
-                {ESTADO_LABEL[ix.estado]}
+              <span className={`flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${ESTADO_STYLE[ix.estado] ?? ''}`}>
+                {ESTADO_LABEL[ix.estado] ?? ix.estado}
               </span>
             </div>
             {actions && (
@@ -253,13 +274,12 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
   const [suggestions, setSuggestions] = useState([])
   const [searching,   setSearching]   = useState(false)
   const [showDrop,    setShowDrop]    = useState(false)
-  const [selected,    setSelected]    = useState(null) // usuario elegido
+  const [selected,    setSelected]    = useState(null)
   const [error,       setError]       = useState('')
   const [sending,     setSending]     = useState(false)
   const [sent,        setSent]        = useState(false)
   const debounceRef = useRef(null)
 
-  // Dispara búsqueda parcial tras 300 ms de inactividad, mínimo 3 chars
   useEffect(() => {
     if (query.length < 3) { setSuggestions([]); setShowDrop(false); return }
     clearTimeout(debounceRef.current)
@@ -329,7 +349,6 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
       <div className="rounded-xl border border-paper-deep bg-paper p-5">
         <h2 className="mb-4 font-semibold text-ink">Buscar usuario</h2>
 
-        {/* Input con autocomplete */}
         <div className="relative">
           <input
             type="text"
@@ -342,12 +361,9 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
             className="w-full rounded-lg border border-paper-deep bg-paper-deep/40 px-3 py-2 pr-8 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-pitch/30"
           />
           {searching && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-soft/60">
-              ···
-            </span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-soft/60">···</span>
           )}
 
-          {/* Dropdown de sugerencias */}
           {showDrop && (
             <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-paper-deep bg-paper shadow-lg">
               {suggestions.length > 0 ? suggestions.map(u => (
@@ -376,7 +392,6 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
           <p className="mt-2 text-sm font-medium text-accent-red">{error}</p>
         )}
 
-        {/* Usuario seleccionado + botón enviar */}
         {selected && (
           <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50/60 px-4 py-3">
             <div className="min-w-0">
@@ -403,44 +418,252 @@ function NuevaSolicitud({ userId, intercambios, onSent }) {
 }
 
 // ─── Detalle del intercambio ──────────────────────────────────────────────────
-function DetalleIntercambio({ detalle, onBack }) {
+function DetalleIntercambio({ detalle, onBack, onConfirmar }) {
   const { ix, canGive, canReceive } = detalle
+  const completado = ix.estado === 'completado'
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <button
-        type="button"
-        onClick={onBack}
-        className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink transition-colors"
-      >
+      <button type="button" onClick={onBack}
+        className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink transition-colors">
         ← Volver
       </button>
 
       <h1 className="brand-title text-3xl text-ink mb-0.5">Intercambio</h1>
-      <p className="mb-6 text-sm text-ink-soft">
+      <p className="mb-1 text-sm text-ink-soft">
         con <span className="font-semibold text-ink">{ix.otro_usuario_nombre}</span>
         <span className="ml-1 text-ink-soft/70">· {ix.otro_usuario_email}</span>
       </p>
 
+      {completado ? (
+        <span className="mb-5 inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
+          Intercambio confirmado
+        </span>
+      ) : (
+        <div className="mb-5" />
+      )}
+
       <SeccionLaminas
-        title="Lo que yo puedo aportar"
-        subtitle={`Mis repetidas que a ${ix.otro_usuario_nombre} le faltan`}
+        title={completado ? 'Láminas que di' : 'Lo que yo puedo aportar'}
+        subtitle={completado
+          ? `Láminas que entregué a ${ix.otro_usuario_nombre}`
+          : `Mis repetidas que a ${ix.otro_usuario_nombre} le faltan`}
         laminas={canGive}
-        emptyMsg="No tienes repetidas que le falten a este usuario."
+        emptyMsg={completado
+          ? 'No se registraron láminas entregadas.'
+          : 'No tienes repetidas que le falten a este usuario.'}
         colorClass="text-pitch"
       />
 
       <SeccionLaminas
-        title="Lo que me pueden aportar"
-        subtitle={`Las repetidas de ${ix.otro_usuario_nombre} que a mí me faltan`}
+        title={completado ? 'Láminas que recibí' : 'Lo que me pueden aportar'}
+        subtitle={completado
+          ? `Láminas que recibí de ${ix.otro_usuario_nombre}`
+          : `Las repetidas de ${ix.otro_usuario_nombre} que a mí me faltan`}
         laminas={canReceive}
-        emptyMsg={`${ix.otro_usuario_nombre} no tiene repetidas que a ti te falten.`}
+        emptyMsg={completado
+          ? 'No se registraron láminas recibidas.'
+          : `${ix.otro_usuario_nombre} no tiene repetidas que a ti te falten.`}
         colorClass="text-accent-gold"
       />
+
+      {onConfirmar && (
+        <div className="mt-2">
+          <button type="button" onClick={onConfirmar}
+            className="w-full rounded-xl bg-pitch py-3 text-sm font-bold text-white hover:bg-pitch/90 transition-colors">
+            Confirmar intercambio
+          </button>
+          <p className="mt-2 text-center text-xs text-ink-soft">
+            Confirma cuando hayas entregado y recibido las láminas físicamente.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
 
+// ─── Confirmar intercambio ────────────────────────────────────────────────────
+function ConfirmarIntercambio({ ix, canGive, canReceive, myRepetidas, theirRepetidas, onBack, onConfirmed }) {
+  const [doy,    setDoy]    = useState(canGive)
+  const [recibo, setRecibo] = useState(canReceive)
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
+
+  async function confirmar() {
+    setSaving(true)
+    setError('')
+    const laminasDoy    = doy.map(l => l.id)
+    const laminasRecibo = recibo.map(l => l.id)
+    // Siempre se almacena desde la perspectiva del solicitante
+    const storeDoy    = ix.es_solicitante ? laminasDoy    : laminasRecibo
+    const storeRecibo = ix.es_solicitante ? laminasRecibo : laminasDoy
+    const { error: err } = await supabase.from('intercambios').update({
+      estado:         'completado',
+      laminas_doy:    storeDoy,
+      laminas_recibo: storeRecibo,
+      updated_at:     new Date().toISOString(),
+    }).eq('id', ix.id)
+    setSaving(false)
+    if (err) {
+      setError('No se pudo confirmar el intercambio. Inténtalo de nuevo.')
+    } else {
+      onConfirmed()
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-6">
+      <button type="button" onClick={onBack}
+        className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink transition-colors">
+        ← Volver al detalle
+      </button>
+
+      <h1 className="brand-title text-3xl text-ink mb-0.5">Confirmar intercambio</h1>
+      <p className="mb-1 text-sm text-ink-soft">
+        con <span className="font-semibold text-ink">{ix.otro_usuario_nombre}</span>
+      </p>
+      <p className="mb-6 text-xs text-ink-soft">
+        Revisa las láminas. Puedes agregar o quitar antes de confirmar.
+      </p>
+
+      <LaminasEditables
+        title="Láminas que doy"
+        subtitle={`Mis repetidas para ${ix.otro_usuario_nombre}`}
+        items={doy}
+        available={myRepetidas}
+        onRemove={(id) => setDoy(prev => prev.filter(l => l.id !== id))}
+        onAdd={(l)  => setDoy(prev => [...prev, l])}
+        colorClass="text-pitch"
+        emptyMsg="No hay láminas seleccionadas para dar."
+      />
+
+      <LaminasEditables
+        title="Láminas que recibo"
+        subtitle={`Repetidas de ${ix.otro_usuario_nombre} para mí`}
+        items={recibo}
+        available={theirRepetidas}
+        onRemove={(id) => setRecibo(prev => prev.filter(l => l.id !== id))}
+        onAdd={(l)  => setRecibo(prev => [...prev, l])}
+        colorClass="text-accent-gold"
+        emptyMsg="No hay láminas seleccionadas para recibir."
+      />
+
+      {error && (
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-accent-red">
+          {error}
+        </p>
+      )}
+
+      <button type="button" onClick={confirmar} disabled={saving}
+        className="w-full rounded-xl bg-green-600 py-3 text-sm font-bold text-white hover:bg-green-700 transition-colors disabled:opacity-50">
+        {saving ? 'Confirmando...' : 'Confirmar intercambio'}
+      </button>
+      <p className="mt-2 text-center text-xs text-ink-soft">
+        Una vez confirmado, podrás enviar una nueva solicitud a este usuario.
+      </p>
+    </div>
+  )
+}
+
+// ─── Sección de láminas editable (con autocomplete) ──────────────────────────
+function LaminasEditables({ title, subtitle, items, available, onRemove, onAdd, colorClass, emptyMsg }) {
+  const [query,    setQuery]    = useState('')
+  const [showDrop, setShowDrop] = useState(false)
+
+  const suggestions = query.length >= 3
+    ? available
+        .filter(l => !items.some(i => i.id === l.id))
+        .filter(l =>
+          l.number.toLowerCase().includes(query.toLowerCase()) ||
+          l.name.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 8)
+    : []
+
+  function handleAdd(l) {
+    onAdd(l)
+    setQuery('')
+    setShowDrop(false)
+  }
+
+  return (
+    <div className="mb-5 overflow-hidden rounded-xl border border-paper-deep bg-paper">
+      <div className="border-b border-paper-deep px-4 py-3">
+        <h2 className="font-bold text-ink">{title}</h2>
+        <p className="text-xs text-ink-soft">{subtitle}</p>
+        <p className={`mt-0.5 text-xs font-semibold tabular ${colorClass}`}>
+          {items.length} lámina{items.length !== 1 ? 's' : ''}
+        </p>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="px-4 py-4 text-center text-sm text-ink-soft">{emptyMsg}</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5 p-3">
+          {items.map(l => {
+            const sel = SELECCION_BY_ID[l.seleccionId]
+            const bg  = sel?.colors?.primary ?? '#374151'
+            return (
+              <div key={l.id} className="group relative">
+                <div
+                  title={`${l.number} · ${l.name}`}
+                  className="rounded px-2 py-1 text-center"
+                  style={{ backgroundColor: bg }}
+                >
+                  <p className="text-[10px] font-bold text-white tabular leading-none">{l.number}</p>
+                  {sel && (
+                    <p className="mt-0.5 text-[8px] font-semibold uppercase text-white/70 leading-none">
+                      {sel.tla}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(l.id)}
+                  title="Quitar"
+                  className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  ×
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Autocomplete para agregar láminas */}
+      <div className="relative border-t border-paper-deep px-3 pb-3 pt-2">
+        <input
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); setShowDrop(true) }}
+          onFocus={() => query.length >= 3 && setShowDrop(true)}
+          onBlur={() => setTimeout(() => setShowDrop(false), 150)}
+          placeholder="Agregar lámina (mínimo 3 caracteres)..."
+          autoComplete="off"
+          className="w-full rounded-lg border border-paper-deep bg-paper-deep/40 px-3 py-1.5 text-sm text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-pitch/30"
+        />
+        {showDrop && suggestions.length > 0 && (
+          <div className="absolute left-3 right-3 top-full z-20 mt-0.5 max-h-48 overflow-y-auto rounded-lg border border-paper-deep bg-paper shadow-lg">
+            {suggestions.map(l => (
+              <button
+                key={l.id}
+                type="button"
+                onMouseDown={() => handleAdd(l)}
+                className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-paper-deep"
+              >
+                <span className="w-14 flex-shrink-0 text-xs font-bold text-ink tabular">{l.number}</span>
+                <span className="truncate text-xs text-ink-soft">{l.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Sección de láminas (solo lectura) ───────────────────────────────────────
 function SeccionLaminas({ title, subtitle, laminas, emptyMsg, colorClass }) {
   return (
     <div className="mb-5 overflow-hidden rounded-xl border border-paper-deep bg-paper">

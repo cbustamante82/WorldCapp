@@ -1,6 +1,7 @@
 -- Retorna todos los intercambios del usuario autenticado, enriquecidos con
 -- nombre y email del otro participante. Incluye el flag es_solicitante para
 -- que el cliente distinga el rol sin comparar UUIDs.
+-- laminas_doy / laminas_recibo están desde la perspectiva del solicitante.
 -- SECURITY DEFINER: accede a auth.users sin exponerlo al cliente.
 
 CREATE OR REPLACE FUNCTION public.mis_intercambios()
@@ -12,7 +13,9 @@ RETURNS TABLE (
   created_at          TIMESTAMPTZ,
   otro_usuario_email  TEXT,
   otro_usuario_nombre TEXT,
-  es_solicitante      BOOLEAN
+  es_solicitante      BOOLEAN,
+  laminas_doy         integer[],
+  laminas_recibo      integer[]
 )
 LANGUAGE SQL SECURITY DEFINER SET search_path = public
 AS $$
@@ -27,7 +30,9 @@ AS $$
          THEN COALESCE(u2.raw_user_meta_data->>'name', split_part(u2.email, '@', 1))
          ELSE COALESCE(u1.raw_user_meta_data->>'name', split_part(u1.email, '@', 1))
     END,
-    (i.solicitante_id = auth.uid())
+    (i.solicitante_id = auth.uid()),
+    i.laminas_doy,
+    i.laminas_recibo
   FROM public.intercambios i
   JOIN auth.users u1 ON u1.id = i.solicitante_id
   JOIN auth.users u2 ON u2.id = i.receptor_id
