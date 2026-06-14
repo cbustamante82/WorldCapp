@@ -20,7 +20,6 @@ BEGIN
     RAISE EXCEPTION 'Intercambio no encontrado';
   END IF;
 
-  -- Completado: nada que hacer (ya confirmaron ambos)
   IF ix.estado = 'completado' THEN
     RETURN;
   END IF;
@@ -35,7 +34,6 @@ BEGIN
 
   soy_sol := ix.solicitante_id = auth.uid();
 
-  -- Usar FOR UPDATE para evitar race condition si ambos confirman simultáneamente
   SELECT * INTO ix FROM public.intercambios WHERE id = intercambio_id FOR UPDATE;
 
   IF soy_sol THEN

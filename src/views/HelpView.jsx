@@ -85,12 +85,11 @@ const SECTIONS = [
     summary: 'Comparte repetidas y recibe faltantes de otros coleccionistas',
     steps: [
       { icon: '🔍', text: 'En "Nueva solicitud" escribe el nombre o email de otro usuario. El autocompletado sugiere coincidencias a partir de 3 caracteres.' },
-      { icon: '📨', text: 'Selecciona el usuario y pulsa "Enviar solicitud". El receptor recibe una notificación en el sistema y por correo electrónico.' },
+      { icon: '📨', text: 'Selecciona el usuario y pulsa "Enviar solicitud". El otro coleccionista debe aceptarla antes de que puedan ver el detalle.' },
       { icon: '✅', text: 'En la pestaña "Recibidas" verás las solicitudes pendientes con los botones Aprobar y Rechazar.' },
-      { icon: '❌', text: 'Si rechazas o aceptas una solicitud, el remitente recibe una notificación por correo con el resultado.' },
-      { icon: '📊', text: 'Al aprobar, ambos usuarios pueden abrir "Ver intercambio": muestra las repetidas que cada uno puede aportar al otro.' },
-      { icon: '☑️', text: 'Cuando hayas entregado tus láminas físicamente, pulsa "Confirmar mis láminas". Solo gestionas tu propio lado: puedes agregar o quitar láminas usando el autocomplete (mínimo 3 caracteres). El otro usuario confirma las suyas de forma independiente.' },
-      { icon: '🏁', text: 'El intercambio queda "Completado" cuando ambos usuarios confirman sus láminas. A partir de ese momento puedes enviar una nueva solicitud al mismo usuario.' },
+      { icon: '❌', text: 'Si rechazas una solicitud, el remitente verá en "Enviadas" que no fue aceptada.' },
+      { icon: '🔄', text: 'Al aprobar, ambos usuarios pueden abrir el detalle del intercambio con el botón "Ver intercambio".' },
+      { icon: '📊', text: 'El detalle muestra dos listas: las repetidas que tú tienes y al otro le faltan, y las repetidas del otro que a ti te faltan.' },
     ],
   },
   {
