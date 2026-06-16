@@ -17,7 +17,11 @@ export default function LoginView({ onGoRegister, onGoRecover }) {
     try {
       await login(email.trim().toLowerCase(), password)
     } catch (err) {
-      setError('Email o contraseña incorrectos.')
+      if (err?.message?.toLowerCase().includes('email not confirmed')) {
+        setError('Debés confirmar tu cuenta. Revisá tu correo electrónico y hacé clic en el enlace de confirmación.')
+      } else {
+        setError('Email o contraseña incorrectos.')
+      }
     } finally {
       setLoading(false)
     }
