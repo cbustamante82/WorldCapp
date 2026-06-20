@@ -197,9 +197,10 @@ export default function TableView() {
                       />
                     </div>
 
-                    {/* Chips: solo en móvil (debajo del nombre). 5 por fila en portrait,
-                        8 en landscape para aprovechar el ancho disponible (RNF-015). */}
-                    <div className="mt-2 grid grid-cols-[repeat(5,max-content)] gap-1 landscape:grid-cols-[repeat(8,max-content)] md:hidden">
+                    {/* Chips: solo en móvil (debajo del nombre). 5 por fila en portrait;
+                        en landscape se auto-ajusta según el ancho disponible, hasta
+                        un máximo de 10 por fila (RNF-015). */}
+                    <div className="mt-2 grid grid-cols-[repeat(5,max-content)] gap-1 landscape:max-w-[27.5rem] landscape:grid-cols-[repeat(auto-fill,minmax(2.5rem,max-content))] md:hidden">
                       <Chips laminas={page.laminas} color={color} />
                     </div>
                   </td>
