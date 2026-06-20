@@ -197,11 +197,9 @@ export default function TableView() {
                       />
                     </div>
 
-                    {/* Chips: solo en móvil (debajo del nombre, máx 10 por fila) */}
-                    <div
-                      className="mt-2 grid gap-1 md:hidden"
-                      style={{ gridTemplateColumns: 'repeat(5, max-content)' }}
-                    >
+                    {/* Chips: solo en móvil (debajo del nombre). 5 por fila en portrait,
+                        8 en landscape para aprovechar el ancho disponible (RNF-015). */}
+                    <div className="mt-2 grid grid-cols-[repeat(5,max-content)] gap-1 landscape:grid-cols-[repeat(8,max-content)] md:hidden">
                       <Chips laminas={page.laminas} color={color} />
                     </div>
                   </td>

@@ -100,7 +100,7 @@ export default function ProgressView() {
       <p className="mb-6 text-sm text-ink-soft">Avance del álbum completo — {resumen.total} láminas.</p>
 
       {/* Métricas */}
-      <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-3 landscape:grid-cols-4 md:grid-cols-4">
         <StatCard label="Pegadas" value={resumen.pegadas} accent={PITCH} sub={`${resumen.pct}% del álbum`} />
         <StatCard label="Faltantes" value={resumen.faltantes} accent="var(--color-accent-red)" />
         <StatCard label="Repetidas" value={resumen.repetidas} accent={GOLD} sub="total acumulado" />

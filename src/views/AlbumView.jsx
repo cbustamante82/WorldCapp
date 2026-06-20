@@ -11,6 +11,7 @@ import FlagSelect from '../components/FlagSelect'
 import ConfirmDialog from '../components/ConfirmDialog'
 import TrashIcon from '../components/TrashIcon'
 import { useCollection, getEstado } from '../hooks/useCollection'
+import { useIsLandscapeMobile } from '../hooks/useOrientation'
 import { PAGINAS, LAMINAS, ALBUM_TOTALS } from '../data/laminas'
 import { SELECCION_BY_ID } from '../data/selecciones'
 import { SECCION_BY_ID } from '../data/secciones'
@@ -44,6 +45,7 @@ export default function AlbumView() {
   const { user }        = useAuth()
   const { withLoading } = useLoading()
   const [searchParams]   = useSearchParams()
+  const isLandscapeMobile = useIsLandscapeMobile()
 
   // ── Máquina de estados del flipbook ──
   // phase: 'idle' | 'exiting' | 'entering'
@@ -186,13 +188,13 @@ export default function AlbumView() {
 
           {/* Contenido de la página */}
           {page.type === 'team' && seleccion && (
-            <TeamPage page={page} ordered={ordered} seleccion={seleccion} pegadas={pegadas} estadoMap={estadoMap} isFan={isFanPage} />
+            <TeamPage page={page} ordered={ordered} seleccion={seleccion} pegadas={pegadas} estadoMap={estadoMap} isFan={isFanPage} isLandscapeMobile={isLandscapeMobile} />
           )}
           {page.type === 'fwc' && (
-            <SpecialPage page={page} ordered={ordered} pegadas={pegadas} estadoMap={estadoMap} variant="fwc" />
+            <SpecialPage page={page} ordered={ordered} pegadas={pegadas} estadoMap={estadoMap} variant="fwc" isLandscapeMobile={isLandscapeMobile} />
           )}
           {page.type === 'coca-cola' && (
-            <SpecialPage page={page} ordered={ordered} pegadas={pegadas} estadoMap={estadoMap} variant="coca-cola" />
+            <SpecialPage page={page} ordered={ordered} pegadas={pegadas} estadoMap={estadoMap} variant="coca-cola" isLandscapeMobile={isLandscapeMobile} />
           )}
 
           {/* Sombra de doblez (solo durante la animación) */}
@@ -291,7 +293,8 @@ export default function AlbumView() {
 }
 
 // ─── Página de selección (estilo Panini) ────────────────────────────────────
-function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan }) {
+function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan, isLandscapeMobile }) {
+  const gridCols = isLandscapeMobile ? page.gridCols + 2 : page.gridCols
   const { primary, secondary } = seleccion.colors
   return (
     <div className="relative" style={{ minHeight: 'clamp(320px, 60vw, 520px)' }}>
@@ -356,7 +359,7 @@ function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan }) {
         {/* Grilla de láminas */}
         <div
           className="grid gap-2.5"
-          style={{ gridTemplateColumns: `repeat(${page.gridCols}, minmax(0, 1fr))` }}
+          style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
         >
           {ordered.map((lamina) => (
             <LaminaCard
@@ -379,8 +382,9 @@ function TeamPage({ page, ordered, seleccion, pegadas, estadoMap, isFan }) {
 }
 
 // ─── Páginas especiales (FWC / Coca-Cola) ───────────────────────────────────
-function SpecialPage({ page, ordered, pegadas, estadoMap, variant }) {
+function SpecialPage({ page, ordered, pegadas, estadoMap, variant, isLandscapeMobile }) {
   const isFWC = variant === 'fwc'
+  const gridCols = isLandscapeMobile ? (page.gridCols ?? 5) + 2 : (page.gridCols ?? 5)
   const accentColor = isFWC ? '#fde68a' : '#fca5a5'
   const bgStyle = isFWC
     ? { background: 'linear-gradient(135deg, #2c1a00 0%, #5a3800 40%, #3d2600 100%)' }
@@ -417,7 +421,7 @@ function SpecialPage({ page, ordered, pegadas, estadoMap, variant }) {
       {/* Grilla de láminas */}
       <div
         className="grid gap-2.5"
-        style={{ gridTemplateColumns: `repeat(${page.gridCols ?? 5}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
       >
         {ordered.map((lamina) => (
           <LaminaCard
