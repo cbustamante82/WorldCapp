@@ -25,12 +25,14 @@ function parseNormalized(matches) {
     if (isLive) hasLive = true
 
     const scoreObj = isDone ? m.score?.fullTime : (isLive ? (m.score?.halfTime ?? null) : null)
-    results[`${t1}-${t2}`] = {
-      g1: scoreObj?.home ?? null,
-      g2: scoreObj?.away ?? null,
-      status: m.status,
-      minute: m.minute ?? null,
-    }
+    const g1 = scoreObj?.home ?? null
+    const g2 = scoreObj?.away ?? null
+    const status = m.status
+    const minute = m.minute ?? null
+    // Se guarda en ambos órdenes porque el local/visitante de la API no siempre
+    // coincide con el orden team1/team2 de nuestro catálogo estático (fixtures.js).
+    results[`${t1}-${t2}`] = { g1, g2, status, minute }
+    results[`${t2}-${t1}`] = { g1: g2, g2: g1, status, minute }
   }
   return { results, hasLive }
 }
@@ -58,13 +60,15 @@ function parseESPNEvents(events) {
 
     const h = parseInt(home.score ?? '0', 10)
     const a = parseInt(away.score ?? '0', 10)
+    const g1 = isDone || isLive ? h : null
+    const g2 = isDone || isLive ? a : null
+    const status = isLive ? 'IN_PLAY' : (isDone ? 'FINISHED' : 'SCHEDULED')
+    const minute = isLive ? (ev.status?.displayClock ?? null) : null
 
-    results[`${t1}-${t2}`] = {
-      g1:     isDone || isLive ? h : null,
-      g2:     isDone || isLive ? a : null,
-      status: isLive ? 'IN_PLAY' : (isDone ? 'FINISHED' : 'SCHEDULED'),
-      minute: isLive ? (ev.status?.displayClock ?? null) : null,
-    }
+    // Se guarda en ambos órdenes porque el local/visitante de ESPN no siempre
+    // coincide con el orden team1/team2 de nuestro catálogo estático (fixtures.js).
+    results[`${t1}-${t2}`] = { g1, g2, status, minute }
+    results[`${t2}-${t1}`] = { g1: g2, g2: g1, status, minute }
   }
   return { results, hasLive }
 }
